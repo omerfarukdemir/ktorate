@@ -30,13 +30,15 @@ abstract class RateLimiter(
     }
 
     suspend fun deleteExpiredRecords(nowInSeconds: Int): Int {
-        return storage.all()
+        val expiredIds = storage.all()
             .filter { expired(it, nowInSeconds) }
-            .map {
-                if (synchronizedReadWrite) mutex(it.id).withLock { storage.delete(it.id) }
-                else storage.delete(it.id)
-            }
-            .count { it }
+            .map { it.id }
+
+        return if (synchronizedReadWrite) {
+            expiredIds.map { mutex(it).withLock { storage.delete(it)} }.count { it }
+        } else {
+            storage.delete(expiredIds)
+        }
     }
 
     private fun mutex(id: String): Mutex {

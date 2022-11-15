@@ -12,4 +12,6 @@ interface RateLimitStorage<T : RateLimitModel> {
 
     fun delete(id: String): Boolean
 
+    fun delete(ids: Collection<String>): Int
+
 }

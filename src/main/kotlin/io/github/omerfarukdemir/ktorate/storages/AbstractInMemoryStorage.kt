@@ -23,4 +23,9 @@ abstract class AbstractInMemoryStorage<T: RateLimitModel> : RateLimitStorage<T> 
         return storage.remove(id) != null
     }
 
+    override fun delete(ids: Collection<String>): Int {
+        return ids.toSet()
+            .map { delete(it) }
+            .count { it }
+    }
 }

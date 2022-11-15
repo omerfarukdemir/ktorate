@@ -10,7 +10,7 @@ naive ktor rate limiter plugin
 - In Memory
 ### Examples
 - Default Config (do not rely on defaults)
-```
+```kotlin
 fun main() {
     embeddedServer(Netty, port = 8080, host = "0.0.0.0", module = Application::module).start(wait = true)
 }
@@ -22,7 +22,7 @@ fun Application.module() {
 }
 ```
 - Customized Options
-```
+```kotlin
 fun Application.module() {
     // user resolver function
     fun getUserId(): String {
@@ -41,13 +41,13 @@ fun Application.module() {
 }
 ```
 - Strategy Selection
-```
+```kotlin
 fun Application.module() {
     install(RateLimiter, configure = {
         duration = 1.hours
         limit = 100
         deleteExpiredRecordsPeriod = 5.minutes
-        synchronizedReadWrite = false,
+        synchronizedReadWrite = false
         rateLimiter = SlidingWindow(duration, limit, synchronizedReadWrite) // can be FixedWindow, SlidingWindow, SlidingLog
     })
 
@@ -65,4 +65,3 @@ fun Application.module() {
 - CI (github actions?)
 - Token Bucket and Leaky Bucket strategies
 - Customizable limiter by route and HTTP method
-- Batch delete support in RateLimitStorage for external storages
