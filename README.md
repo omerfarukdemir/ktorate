@@ -1,11 +1,9 @@
 # ktorate
-naive ktor rate limiter plugin
+Naive ktor rate limiter plugin
 ### Supported Strategies
-- Token Bucket &#x2612;
-- Leaky Bucket &#x2612;
-- Fixed Window &#x2611;
-- Sliding Window &#x2611;
-- Sliding Log &#x2611;
+- Fixed Window
+- Sliding Window
+- Sliding Log
 ### Supported Data Stores
 - In Memory
 ### Examples
@@ -24,7 +22,7 @@ fun Application.module() {
 - Customized Options
 ```kotlin
 fun Application.module() {
-    // user resolver function
+    // identity resolver function
     fun getUserId(): String {
         return UUID.randomUUID().toString()
     }
