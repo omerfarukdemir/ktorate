@@ -32,10 +32,10 @@ data class Result(
     val exceeded: Boolean
 )
 
-val RateLimiter by lazy {
-    createApplicationPlugin(name = "RateLimiter", createConfiguration = ::Configuration) {
+val ktorate by lazy {
+    createApplicationPlugin(name = "ktorate", createConfiguration = ::Configuration) {
         on(MonitoringEvent(ApplicationStarted)) { application ->
-            application.log.debug("Starting RateLimiter expired records cleaner!")
+            application.log.debug("Starting ktorate expired records cleaner!")
 
             CoroutineScope(Job()).launch {
                 while (true) {
@@ -44,7 +44,7 @@ val RateLimiter by lazy {
                     val count = pluginConfig.rateLimiter.deleteExpiredRecords(Now.seconds())
 
                     if (count > 0) {
-                        application.log.debug("Removed $count expired RateLimit records!")
+                        application.log.debug("Removed $count expired ktorate records!")
                     }
                 }
             }
