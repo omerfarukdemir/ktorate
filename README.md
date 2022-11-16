@@ -77,7 +77,7 @@ fun Application.inMemory() {
 
 - Redis ([jedis](https://github.com/omerfarukdemir/ktorate/tree/develop/src/test/kotlin/io/github/omerfarukdemir/ktorate/examples/redis/JedisApplication.kt))
 
-- PostgreSQL ([ktorm](https://github.com/omerfarukdemir/ktorate/tree/develop/src/test/kotlin/io/github/omerfarukdemir/ktorate/examples/postgresql/KtormApplication))
+- PostgreSQL ([ktorm](https://github.com/omerfarukdemir/ktorate/tree/develop/src/test/kotlin/io/github/omerfarukdemir/ktorate/examples/postgresql/KtormApplication.kt))
 
 ### TODO's
 
