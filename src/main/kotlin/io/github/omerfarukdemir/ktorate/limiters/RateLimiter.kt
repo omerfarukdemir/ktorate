@@ -5,7 +5,7 @@ import io.github.omerfarukdemir.ktorate.models.RateLimitModel
 import io.github.omerfarukdemir.ktorate.storages.RateLimitStorage
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import java.lang.ref.WeakReference
+import java.lang.ref.SoftReference
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentMap
 import kotlin.time.Duration
@@ -16,7 +16,7 @@ abstract class RateLimiter(
     private val storage: RateLimitStorage<RateLimitModel>
 ) {
 
-    private val idMutexMapping: ConcurrentMap<String, WeakReference<Mutex>> by lazy { ConcurrentHashMap() }
+    private val idMutexMapping: ConcurrentMap<String, SoftReference<Mutex>> by lazy { ConcurrentHashMap() }
 
     protected val durationInSeconds = duration.inWholeSeconds.toInt()
 
@@ -42,6 +42,6 @@ abstract class RateLimiter(
     }
 
     private fun mutex(id: String): Mutex {
-        return idMutexMapping.getOrPut(id) { WeakReference(Mutex()) }.get()!!
+        return idMutexMapping.getOrPut(id) { SoftReference(Mutex()) }.get()!!
     }
 }
