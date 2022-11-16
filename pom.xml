@@ -33,6 +33,9 @@
             <artifactId>logback-classic</artifactId>
             <version>${logback_version}</version>
         </dependency>
+
+        <!-- TEST -->
+
         <dependency>
             <groupId>io.ktor</groupId>
             <artifactId>ktor-server-tests-jvm</artifactId>

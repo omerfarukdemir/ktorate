@@ -1,5 +1,6 @@
-package io.github.omerfarukdemir.ktorate
+package io.github.omerfarukdemir.ktorate.examples.postgresql
 
+import io.github.omerfarukdemir.ktorate.ktorate
 import io.github.omerfarukdemir.ktorate.limiters.FixedWindow
 import io.github.omerfarukdemir.ktorate.models.FixedWindowModel
 import io.github.omerfarukdemir.ktorate.storages.FixedWindowStorage
@@ -17,7 +18,7 @@ import org.ktorm.support.postgresql.insertOrUpdate
 import kotlin.time.Duration.Companion.seconds
 
 fun main() {
-    embeddedServer(Netty, port = 8080, host = "0.0.0.0", module = Application::postgreSQL).start(wait = true)
+    embeddedServer(Netty, port = 8080, host = "0.0.0.0", module = Application::ktorm).start(wait = true)
 }
 
 object FixedWindowTable : Table<Nothing>("fixed_window") {
@@ -28,7 +29,7 @@ object FixedWindowTable : Table<Nothing>("fixed_window") {
 
 class PostgreSQLFixedWindowStorage : FixedWindowStorage {
 
-    // make sure schema is ready bofore run this example
+    // make sure schema is ready before run this example
     // CREATE DATABASE ktorate;
     // CREATE TABLE fixed_window (id varchar NOT NULL PRIMARY KEY, start_in_seconds INT NOT NULL, request_count INT NOT NULL);
 
@@ -42,6 +43,7 @@ class PostgreSQLFixedWindowStorage : FixedWindowStorage {
         return database.from(FixedWindowTable)
             .select()
             .where(FixedWindowTable.id eq id)
+            .limit(1)
             .map { it.fixedWindowModel() }
             .firstOrNull()
     }
@@ -83,7 +85,7 @@ class PostgreSQLFixedWindowStorage : FixedWindowStorage {
     }
 }
 
-fun Application.postgreSQL() {
+fun Application.ktorm() {
     install(ktorate, configure = {
         duration = 3.seconds
         limit = 5

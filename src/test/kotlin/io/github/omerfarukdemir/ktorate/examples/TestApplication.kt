@@ -1,5 +1,6 @@
-package io.github.omerfarukdemir.ktorate
+package io.github.omerfarukdemir.ktorate.examples
 
+import io.github.omerfarukdemir.ktorate.ktorate
 import io.ktor.server.application.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
