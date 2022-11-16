@@ -8,9 +8,9 @@ Naive ktor rate limiter plugin
 - Sliding Window
 - Sliding Log
 
-### Supported Data Stores
+### Built-in Data Stores
 
-- In Memory
+- In Memory ([you can implement your one as well](https://github.com/omerfarukdemir/ktorate#custom-storage-examples))
 
 ### Examples
 

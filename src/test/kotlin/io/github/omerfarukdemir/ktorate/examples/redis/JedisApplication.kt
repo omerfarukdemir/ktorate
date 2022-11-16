@@ -29,9 +29,7 @@ class RedisFixedWindowStorage : FixedWindowStorage {
     }
 
     override fun upsert(model: FixedWindowModel): FixedWindowModel {
-        val jsonString = gson.toJson(model)
-
-        return model.also { redisPool.resource.use { it.set(model.id, jsonString) } }
+        return model.also { redisPool.resource.use { it.set(model.id, gson.toJson(model)) } }
     }
 
     override fun all(): Collection<FixedWindowModel> {
