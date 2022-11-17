@@ -1,6 +1,6 @@
 package io.github.omerfarukdemir.ktorate.examples.postgresql
 
-import io.github.omerfarukdemir.ktorate.ktorate
+import io.github.omerfarukdemir.ktorate.Ktorate
 import io.github.omerfarukdemir.ktorate.limiters.FixedWindow
 import io.github.omerfarukdemir.ktorate.models.FixedWindowModel
 import io.github.omerfarukdemir.ktorate.storages.FixedWindowStorage
@@ -21,13 +21,13 @@ fun main() {
     embeddedServer(Netty, port = 8080, host = "0.0.0.0", module = Application::ktorm).start(wait = true)
 }
 
-object FixedWindowTable : Table<Nothing>("fixed_window") {
+object KtormFixedWindowTable : Table<Nothing>("fixed_window") {
     val id = varchar("id").primaryKey()
     val startInSeconds = int("start_in_seconds")
     val requestCount = int("request_count")
 }
 
-class PostgreSQLFixedWindowStorage : FixedWindowStorage {
+class KtormFixedWindowStorage : FixedWindowStorage {
 
     // make sure schema is ready before run this example
     // CREATE DATABASE ktorate;
@@ -39,18 +39,18 @@ class PostgreSQLFixedWindowStorage : FixedWindowStorage {
         password = "postgres"
     )
 
-    override fun get(id: String): FixedWindowModel? {
-        return database.from(FixedWindowTable)
+    override suspend fun get(id: String): FixedWindowModel? {
+        return database.from(KtormFixedWindowTable)
             .select()
-            .where(FixedWindowTable.id eq id)
+            .where(KtormFixedWindowTable.id eq id)
             .limit(1)
             .map { it.fixedWindowModel() }
             .firstOrNull()
     }
 
-    override fun upsert(model: FixedWindowModel): FixedWindowModel {
+    override suspend fun upsert(model: FixedWindowModel): FixedWindowModel {
         return model.also {
-            database.insertOrUpdate(FixedWindowTable) {
+            database.insertOrUpdate(KtormFixedWindowTable) {
                 set(it.id, model.id)
                 set(it.startInSeconds, model.startInSeconds)
                 set(it.requestCount, model.requestCount)
@@ -62,31 +62,31 @@ class PostgreSQLFixedWindowStorage : FixedWindowStorage {
         }
     }
 
-    override fun all(): Collection<FixedWindowModel> {
-        return database.from(FixedWindowTable)
+    override suspend fun all(): Collection<FixedWindowModel> {
+        return database.from(KtormFixedWindowTable)
             .select()
             .map { it.fixedWindowModel() }
     }
 
-    override fun delete(id: String): Boolean {
-        return database.delete(FixedWindowTable) { it.id eq id } == 1
+    override suspend fun delete(id: String): Boolean {
+        return database.delete(KtormFixedWindowTable) { it.id eq id } == 1
     }
 
-    override fun delete(ids: Collection<String>): Int {
-        return database.delete(FixedWindowTable) { it.id inList ids }
+    override suspend fun delete(ids: Collection<String>): Int {
+        return database.delete(KtormFixedWindowTable) { it.id inList ids }
     }
 
     private fun QueryRowSet.fixedWindowModel(): FixedWindowModel {
         return FixedWindowModel(
-            this[FixedWindowTable.id]!!,
-            this[FixedWindowTable.startInSeconds]!!,
-            this[FixedWindowTable.requestCount]!!
+            this[KtormFixedWindowTable.id]!!,
+            this[KtormFixedWindowTable.startInSeconds]!!,
+            this[KtormFixedWindowTable.requestCount]!!
         )
     }
 }
 
 fun Application.ktorm() {
-    install(ktorate, configure = {
+    install(Ktorate, configure = {
         duration = 3.seconds
         limit = 5
         deleteExpiredRecordsPeriod = 5.seconds
@@ -95,7 +95,7 @@ fun Application.ktorm() {
             duration = duration,
             limit = limit,
             synchronizedReadWrite = synchronizedReadWrite,
-            storage = PostgreSQLFixedWindowStorage()
+            storage = KtormFixedWindowStorage()
         )
     })
 

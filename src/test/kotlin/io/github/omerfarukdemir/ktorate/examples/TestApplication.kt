@@ -1,6 +1,6 @@
 package io.github.omerfarukdemir.ktorate.examples
 
-import io.github.omerfarukdemir.ktorate.ktorate
+import io.github.omerfarukdemir.ktorate.Ktorate
 import io.ktor.server.application.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
@@ -20,7 +20,7 @@ fun Application.inMemory() {
         return UUID.randomUUID().toString()
     }
 
-    install(ktorate, configure = {
+    install(Ktorate, configure = {
         duration = 1.hours                     // strategy window
         limit = 1000                           // max request in duration by defined strategy
         deleteExpiredRecordsPeriod = 5.minutes // to remove expired records in data store

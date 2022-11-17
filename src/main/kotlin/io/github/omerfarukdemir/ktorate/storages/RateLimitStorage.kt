@@ -4,14 +4,14 @@ import io.github.omerfarukdemir.ktorate.models.RateLimitModel
 
 interface RateLimitStorage<T : RateLimitModel> {
 
-    fun get(id: String): T?
+    suspend fun get(id: String): T?
 
-    fun upsert(model: T): T
+    suspend fun upsert(model: T): T
 
-    fun all(): Collection<T>
+    suspend fun all(): Collection<T>
 
-    fun delete(id: String): Boolean
+    suspend fun delete(id: String): Boolean
 
-    fun delete(ids: Collection<String>): Int
+    suspend fun delete(ids: Collection<String>): Int
 
 }

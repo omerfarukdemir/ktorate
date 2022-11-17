@@ -32,8 +32,8 @@ data class Result(
     val exceeded: Boolean
 )
 
-val ktorate by lazy {
-    createApplicationPlugin(name = "ktorate", createConfiguration = ::Configuration) {
+val Ktorate by lazy {
+    createApplicationPlugin("Ktorate", ::Configuration) {
         on(MonitoringEvent(ApplicationStarted)) { application ->
             application.log.debug("Starting ktorate expired records cleaner!")
 
