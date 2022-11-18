@@ -18,7 +18,7 @@ Naive ktor rate limiter plugin
 
 ```kotlin
 fun main() {
-    embeddedServer(Netty, port = 8080, host = "0.0.0.0", module = Application::inMemory).start(wait = true)
+    embeddedServer(Netty, module = Application::inMemory).start(wait = true)
 }
 
 fun Application.inMemory() {
@@ -32,7 +32,7 @@ fun Application.inMemory() {
 
 ```kotlin
 fun main() {
-    embeddedServer(Netty, port = 8080, host = "0.0.0.0", module = Application::inMemory).start(wait = true)
+    embeddedServer(Netty, module = Application::inMemory).start(wait = true)
 }
 
 fun Application.inMemory() {
@@ -41,13 +41,13 @@ fun Application.inMemory() {
         return UUID.randomUUID().toString()
     }
 
-    install(Ktorate, configure = {
+    install(Ktorate) {
         duration = 1.hours                     // strategy window
         limit = 1000                           // max request in duration by defined strategy
         deleteExpiredRecordsPeriod = 5.minutes // to remove expired records in data store
         identityFunction = ::getUserId         // default is client's IP
         synchronizedReadWrite = true           // blocking ops between read and write ops (only for same identity)
-    })
+    }
 
     routing { get("/") { call.respondText("Evet") } }
 }
@@ -57,17 +57,17 @@ fun Application.inMemory() {
 
 ```kotlin
 fun main() {
-    embeddedServer(Netty, port = 8080, host = "0.0.0.0", module = Application::inMemory).start(wait = true)
+    embeddedServer(Netty, module = Application::inMemory).start(wait = true)
 }
 
 fun Application.inMemory() {
-    install(Ktorate, configure = {
+    install(Ktorate) {
         duration = 1.hours
         limit = 100
         deleteExpiredRecordsPeriod = 5.minutes
         synchronizedReadWrite = false
         rateLimiter = SlidingWindow(duration, limit, synchronizedReadWrite) // can be FixedWindow, SlidingWindow, SlidingLog
-    })
+    }
 
     routing { get("/") { call.respondText("Evet") } }
 }
@@ -87,7 +87,6 @@ fun Application.inMemory() {
 - Configurable response
 - Publish (github packages)
 - More detailed tests
-- External storage example usages (sql?, memcached)
 - CI (github actions?)
 - Token Bucket and Leaky Bucket strategies
 - Customizable limiter by route and HTTP method

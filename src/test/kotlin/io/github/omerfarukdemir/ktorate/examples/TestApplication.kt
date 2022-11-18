@@ -12,7 +12,7 @@ import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
 
 fun main() {
-    embeddedServer(Netty, port = 8080, host = "0.0.0.0", module = Application::inMemory).start(wait = true)
+    embeddedServer(Netty, module = Application::inMemory).start(wait = true)
 }
 
 fun Application.inMemory() {
@@ -20,13 +20,13 @@ fun Application.inMemory() {
         return UUID.randomUUID().toString()
     }
 
-    install(Ktorate, configure = {
+    install(Ktorate) {
         duration = 1.hours                     // strategy window
         limit = 1000                           // max request in duration by defined strategy
         deleteExpiredRecordsPeriod = 5.minutes // to remove expired records in data store
         identityFunction = ::getUserId         // default is client's IP
         synchronizedReadWrite = true           // blocking ops between read and write ops (only for same identity)
-    })
+    }
 
     routing { get("/") { call.respondText("Evet") } }
 }

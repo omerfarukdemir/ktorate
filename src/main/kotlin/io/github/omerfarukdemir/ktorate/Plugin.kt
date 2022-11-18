@@ -17,7 +17,7 @@ import kotlin.time.Duration
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
 
-class Configuration(
+class KtorateConfiguration(
     var duration: Duration = 1.hours,
     var limit: Int = 1000,
     var deleteExpiredRecordsPeriod: Duration = 10.minutes,
@@ -33,7 +33,7 @@ data class Result(
 )
 
 val Ktorate by lazy {
-    createApplicationPlugin("Ktorate", ::Configuration) {
+    createApplicationPlugin("Ktorate", ::KtorateConfiguration) {
         on(MonitoringEvent(ApplicationStarted)) { application ->
             application.log.debug("Starting ktorate expired records cleaner!")
 

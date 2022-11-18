@@ -18,7 +18,7 @@ import org.ktorm.support.postgresql.insertOrUpdate
 import kotlin.time.Duration.Companion.seconds
 
 fun main() {
-    embeddedServer(Netty, port = 8080, host = "0.0.0.0", module = Application::ktorm).start(wait = true)
+    embeddedServer(Netty, module = Application::ktorm).start(wait = true)
 }
 
 object KtormFixedWindowTable : Table<Nothing>("fixed_window") {
@@ -86,7 +86,7 @@ class KtormFixedWindowStorage : FixedWindowStorage {
 }
 
 fun Application.ktorm() {
-    install(Ktorate, configure = {
+    install(Ktorate) {
         duration = 3.seconds
         limit = 5
         deleteExpiredRecordsPeriod = 5.seconds
@@ -97,7 +97,7 @@ fun Application.ktorm() {
             synchronizedReadWrite = synchronizedReadWrite,
             storage = KtormFixedWindowStorage()
         )
-    })
+    }
 
     routing { get("/") { call.respondText("Evet") } }
 }

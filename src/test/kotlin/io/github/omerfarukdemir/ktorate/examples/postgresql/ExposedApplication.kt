@@ -10,14 +10,20 @@ import io.ktor.server.netty.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.coroutines.Dispatchers
+import org.jetbrains.exposed.exceptions.ExposedSQLException
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.inList
+import org.jetbrains.exposed.sql.transactions.TransactionManager
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
+import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.sql.transactions.transactionManager
+import org.postgresql.util.PSQLException
+import java.lang.Exception
 import kotlin.time.Duration.Companion.seconds
 
 fun main() {
-    embeddedServer(Netty, port = 8080, host = "0.0.0.0", module = Application::exposed).start(wait = true)
+    embeddedServer(Netty, module = Application::exposed).start(wait = true)
 }
 
 object ExposedFixedWindowTable : Table("fixed_window") {
@@ -51,22 +57,20 @@ class ExposedFixedWindowStorage : FixedWindowStorage {
     }
 
     override suspend fun upsert(model: FixedWindowModel): FixedWindowModel {
-        // TODO: change it with real upsert query
+        val query = """
+            INSERT INTO
+                fixed_window (id, start_in_seconds, request_count)
+            VALUES
+                ('${model.id}', ${model.startInSeconds}, ${model.requestCount})
+            ON CONFLICT
+                (id)
+            DO UPDATE
+                SET start_in_seconds = ${model.startInSeconds}, request_count = ${model.requestCount}
+            """.trimIndent()
+
         return model.also {
-            val existing = get(model.id)
-            query {
-                if (existing == null) {
-                    ExposedFixedWindowTable.insert {
-                        it[id] = model.id
-                        it[startInSeconds] = model.startInSeconds
-                        it[requestCount] = model.requestCount
-                    }
-                } else {
-                    ExposedFixedWindowTable.update({ ExposedFixedWindowTable.id eq model.id }) {
-                        it[startInSeconds] = model.startInSeconds
-                        it[requestCount] = model.requestCount
-                    }
-                }
+            transaction {
+                TransactionManager.current().exec(query)
             }
         }
     }
@@ -102,7 +106,7 @@ class ExposedFixedWindowStorage : FixedWindowStorage {
 }
 
 fun Application.exposed() {
-    install(Ktorate, configure = {
+    install(Ktorate) {
         duration = 3.seconds
         limit = 5
         deleteExpiredRecordsPeriod = 5.seconds
@@ -113,7 +117,7 @@ fun Application.exposed() {
             synchronizedReadWrite = synchronizedReadWrite,
             storage = ExposedFixedWindowStorage()
         )
-    })
+    }
 
     routing { get("/") { call.respondText("Evet") } }
 }

@@ -1,6 +1,7 @@
 package io.github.omerfarukdemir.ktorate.examples.redis
 
 import com.google.gson.Gson
+import io.github.omerfarukdemir.ktorate.KtorateConfiguration
 import io.github.omerfarukdemir.ktorate.Ktorate
 import io.github.omerfarukdemir.ktorate.limiters.FixedWindow
 import io.github.omerfarukdemir.ktorate.models.FixedWindowModel
@@ -14,7 +15,7 @@ import redis.clients.jedis.JedisPool
 import kotlin.time.Duration.Companion.seconds
 
 fun main() {
-    embeddedServer(Netty, port = 8080, host = "0.0.0.0", module = Application::jedis).start(wait = true)
+    embeddedServer(Netty, module = Application::jedis).start(wait = true)
 }
 
 class RedisFixedWindowStorage : FixedWindowStorage {
@@ -51,7 +52,7 @@ class RedisFixedWindowStorage : FixedWindowStorage {
 }
 
 fun Application.jedis() {
-    install(Ktorate, configure = {
+    install(Ktorate) {
         duration = 3.seconds
         limit = 5
         deleteExpiredRecordsPeriod = 5.seconds
@@ -62,7 +63,7 @@ fun Application.jedis() {
             synchronizedReadWrite = synchronizedReadWrite,
             storage = RedisFixedWindowStorage()
         )
-    })
+    }
 
     routing { get("/") { call.respondText("Evet") } }
 }
