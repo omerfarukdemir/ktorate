@@ -24,6 +24,8 @@ class KtorateConfiguration(
     var identityFunction: (request: ApplicationRequest) -> String = { it.origin.remoteHost },
     var synchronizedReadWrite: Boolean = true,
     var rateLimiter: RateLimiter = SlidingWindow(duration, limit, synchronizedReadWrite),
+    var includedPaths: Collection<Regex>? = null,
+    var excludedPaths: Collection<Regex>? = null
 )
 
 data class Result(
@@ -51,22 +53,49 @@ val Ktorate by lazy {
         }
 
         onCall { call ->
-            val identity = pluginConfig.identityFunction(call.request)
-            val result = pluginConfig.rateLimiter.rate(identity, Now.seconds())
-            val remainingRequestCount = pluginConfig.limit - result.count
+            val path = call.request.path()
 
-            call.response.header("X-RateLimit-Strategy", pluginConfig.rateLimiter.javaClass.simpleName)
-            call.response.header("X-RateLimit-Limit", pluginConfig.limit)
-            call.response.header("X-RateLimit-Remaining", remainingRequestCount)
+            fun anyMatch(regex: Collection<Regex>?): Boolean? = regex
+                ?.map { it.matches(path) }
+                ?.fold(false) { x, y -> x || y }
 
-            if (pluginConfig.rateLimiter !is SlidingWindow) {
-                val reset = result.startInSeconds + pluginConfig.duration.inWholeSeconds
+            val includedMatch = anyMatch(pluginConfig.includedPaths)
+            val excludedMatch = anyMatch(pluginConfig.excludedPaths)
 
-                call.response.header("X-RateLimit-Reset", reset)
+            val shouldWork = when (includedMatch to excludedMatch) {
+                null to null -> true
+                null to false -> true
+                null to true -> false
+                false to null -> false
+                false to false -> false
+                false to true -> false
+                true to null -> true
+                true to false -> true
+                true to true -> {
+                    call.application.log.warn("Path ($path) is matching with both included and excluded paths")
+                    true
+                }
+                else -> true
             }
 
-            if (result.exceeded) {
-                call.respond(HttpStatusCode.TooManyRequests)
+            if (shouldWork) {
+                val identity = pluginConfig.identityFunction(call.request)
+                val result = pluginConfig.rateLimiter.rate(identity, Now.seconds())
+                val remainingRequestCount = pluginConfig.limit - result.count
+
+                call.response.header("X-RateLimit-Strategy", pluginConfig.rateLimiter.javaClass.simpleName)
+                call.response.header("X-RateLimit-Limit", pluginConfig.limit)
+                call.response.header("X-RateLimit-Remaining", remainingRequestCount)
+
+                if (pluginConfig.rateLimiter !is SlidingWindow) {
+                    val reset = result.startInSeconds + pluginConfig.duration.inWholeSeconds
+
+                    call.response.header("X-RateLimit-Reset", reset)
+                }
+
+                if (result.exceeded) {
+                    call.respond(HttpStatusCode.TooManyRequests)
+                }
             }
         }
     }

@@ -42,11 +42,13 @@ fun Application.inMemory() {
     }
 
     install(Ktorate) {
-        duration = 1.hours                     // strategy window
-        limit = 1000                           // max request in duration by defined strategy
-        deleteExpiredRecordsPeriod = 5.minutes // to remove expired records in data store
-        identityFunction = ::getUserId         // default is client's IP
-        synchronizedReadWrite = true           // blocking ops between read and write ops (only for same identity)
+        duration = 1.hours                            // strategy window
+        limit = 1000                                  // max request in duration by defined strategy
+        deleteExpiredRecordsPeriod = 5.minutes        // to remove expired records in data store
+        identityFunction = ::getUserId                // default is client's IP
+        synchronizedReadWrite = true                  // blocking ops between read and write ops (only for same identity)
+        includedPaths = listOf(Regex("^/api/v1/.*$")) // count starting path with "/v1/api/" urls
+        excludedPaths = listOf(Regex("^.*html$"))     // do not count .html urls
     }
 
     routing { get("/") { call.respondText("Evet") } }
@@ -89,4 +91,3 @@ fun Application.inMemory() {
 - More detailed tests
 - CI (github actions?)
 - Token Bucket and Leaky Bucket strategies
-- Customizable limiter by route and HTTP method
