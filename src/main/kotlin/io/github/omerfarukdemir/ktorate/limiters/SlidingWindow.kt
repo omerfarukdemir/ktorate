@@ -6,7 +6,6 @@ import io.github.omerfarukdemir.ktorate.models.SlidingWindowModel
 import io.github.omerfarukdemir.ktorate.storages.InMemorySlidingWindowStorage
 import io.github.omerfarukdemir.ktorate.storages.RateLimitStorage
 import io.github.omerfarukdemir.ktorate.storages.SlidingWindowStorage
-import java.lang.IllegalStateException
 import kotlin.time.Duration
 
 class SlidingWindow(
@@ -45,12 +44,12 @@ class SlidingWindow(
             return model.toResult(startInSeconds = startInSeconds, requestCount = limit, exceeded = true)
         }
 
-        return storage.upsert(model.incrementCount())
+        return storage.upsert(model.copy(requestCount = model.requestCount + 1))
             .toResult(startInSeconds = startInSeconds, requestCount = count, exceeded = false)
     }
 
     override fun expired(model: RateLimitModel, nowInSeconds: Int): Boolean {
-        if (model !is SlidingWindowModel) throw IllegalStateException()
+        check(model is SlidingWindowModel)
 
         return nowInSeconds > model.startInSeconds + (durationInSeconds * 2)
     }

@@ -1,7 +1,9 @@
 package io.github.omerfarukdemir.ktorate.examples
 
 import io.github.omerfarukdemir.ktorate.Ktorate
-import io.ktor.server.application.*
+import io.ktor.server.application.Application
+import io.ktor.server.application.call
+import io.ktor.server.application.install
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import io.ktor.server.response.*
@@ -15,12 +17,23 @@ fun main() {
 
 fun Application.inMemory() {
     install(Ktorate) {
-        duration = 1.hours                                    // strategy window
-        limit = 1000                                          // max request in duration by defined strategy
-        deleteExpiredRecordsPeriod = 5.minutes                // to remove expired records in data store
-        synchronizedReadWrite = true                          // blocking ops between read and write ops (only for same identity)
-        includedPaths = listOf(Regex("^/api/v1/.*$")) // count starting path with "/v1/api/" urls
-        excludedPaths = listOf(Regex("^.*html$"))     // do not count .html urls
+        // strategy window
+        duration = 1.hours
+
+        // max request in duration by defined strategy
+        limit = 1000
+
+        // to remove expired records in data store
+        deleteExpiredRecordsPeriod = 5.minutes
+
+        // blocking ops between read and write ops (only for same identity)
+        synchronizedReadWrite = true
+
+        // count starting path with "/v1/api/" urls
+        includedPaths = listOf(Regex("^/api/v1/.*$"))
+
+        // do not count .html urls
+        excludedPaths = listOf(Regex("^.*html$"))
     }
 
     routing { get("/") { call.respondText("Evet") } }

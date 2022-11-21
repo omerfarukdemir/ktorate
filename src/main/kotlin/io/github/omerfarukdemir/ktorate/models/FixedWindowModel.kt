@@ -12,9 +12,4 @@ data class FixedWindowModel(
     override fun requestCount(): Int {
         return requestCount
     }
-
-    // TODO: remove
-    fun incrementCount(): FixedWindowModel {
-        return copy(requestCount = requestCount + 1)
-    }
 }

@@ -42,13 +42,26 @@ fun Application.inMemory() {
     }
 
     install(Ktorate) {
-        duration = 1.hours                            // strategy window
-        limit = 1000                                  // max request in duration by defined strategy
-        deleteExpiredRecordsPeriod = 5.minutes        // to remove expired records in data store
-        identityFunction = ::getUserId                // default is client's IP
-        synchronizedReadWrite = true                  // blocking ops between read and write ops (only for same identity)
-        includedPaths = listOf(Regex("^/api/v1/.*$")) // count starting path with "/v1/api/" urls
-        excludedPaths = listOf(Regex("^.*html$"))     // do not count .html urls
+        // strategy window
+        duration = 1.hours
+
+        // max request in duration by defined strategy
+        limit = 1000
+
+        // to remove expired records in data store
+        deleteExpiredRecordsPeriod = 5.minutes
+
+        // default is client's IP
+        identityFunction = ::getUserId
+
+        // blocking ops between read and write ops (only for same identity)
+        synchronizedReadWrite = true
+
+        // count starting path with "/v1/api/" urls
+        includedPaths = listOf(Regex("^/api/v1/.*$"))
+
+        // do not count .html urls
+        excludedPaths = listOf(Regex("^.*html$"))
     }
 
     routing { get("/") { call.respondText("Evet") } }
@@ -89,5 +102,4 @@ fun Application.inMemory() {
 - Configurable response
 - Publish (github packages)
 - More detailed tests
-- CI (github actions?)
 - Token Bucket and Leaky Bucket strategies

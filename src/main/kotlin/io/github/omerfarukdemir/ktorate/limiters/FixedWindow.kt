@@ -6,7 +6,6 @@ import io.github.omerfarukdemir.ktorate.models.RateLimitModel
 import io.github.omerfarukdemir.ktorate.storages.FixedWindowStorage
 import io.github.omerfarukdemir.ktorate.storages.InMemoryFixedWindowStorage
 import io.github.omerfarukdemir.ktorate.storages.RateLimitStorage
-import java.lang.IllegalStateException
 import kotlin.time.Duration
 
 class FixedWindow(
@@ -29,11 +28,11 @@ class FixedWindow(
             return model.toResult(exceeded = true)
         }
 
-        return storage.upsert(model.incrementCount()).toResult()
+        return storage.upsert(model.copy(requestCount = model.requestCount + 1)).toResult()
     }
 
     override fun expired(model: RateLimitModel, nowInSeconds: Int): Boolean {
-        if (model !is FixedWindowModel) throw IllegalStateException()
+        check(model is FixedWindowModel)
 
         return nowInSeconds > model.startInSeconds + durationInSeconds
     }

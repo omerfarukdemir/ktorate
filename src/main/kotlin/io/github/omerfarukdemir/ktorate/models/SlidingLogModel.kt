@@ -12,12 +12,10 @@ data class SlidingLogModel(
         return requestTimesInSeconds.count()
     }
 
-    // TODO: remove
     fun addRequestTime(requestTime: Int): SlidingLogModel {
         return copy(requestTimesInSeconds = requestTimesInSeconds.plus(requestTime))
     }
 
-    // TODO: remove
     fun removeExpiredRequestTimes(nowInSeconds: Int, expireInSeconds: Int): SlidingLogModel {
         return copy(requestTimesInSeconds = requestTimesInSeconds.filter { it + expireInSeconds > nowInSeconds })
     }

@@ -6,7 +6,6 @@ import io.github.omerfarukdemir.ktorate.models.SlidingLogModel
 import io.github.omerfarukdemir.ktorate.storages.InMemorySlidingLogStorage
 import io.github.omerfarukdemir.ktorate.storages.RateLimitStorage
 import io.github.omerfarukdemir.ktorate.storages.SlidingLogStorage
-import java.lang.IllegalStateException
 import kotlin.time.Duration
 
 class SlidingLog(
@@ -30,7 +29,7 @@ class SlidingLog(
     }
 
     override fun expired(model: RateLimitModel, nowInSeconds: Int): Boolean {
-        if (model !is SlidingLogModel) throw IllegalStateException()
+        check(model is SlidingLogModel)
 
         return nowInSeconds > model.requestTimesInSeconds.max() + durationInSeconds
     }

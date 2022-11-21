@@ -1,7 +1,9 @@
 package io.github.omerfarukdemir.ktorate.utils
 
 object Now {
+    private const val millisInSecond = 1000
+
     fun seconds(): Int {
-        return (System.currentTimeMillis() / 1000).toInt()
+        return (System.currentTimeMillis() / millisInSecond).toInt()
     }
 }

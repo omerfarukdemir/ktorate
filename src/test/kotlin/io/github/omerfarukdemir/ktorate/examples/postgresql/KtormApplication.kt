@@ -4,18 +4,29 @@ import io.github.omerfarukdemir.ktorate.Ktorate
 import io.github.omerfarukdemir.ktorate.limiters.FixedWindow
 import io.github.omerfarukdemir.ktorate.models.FixedWindowModel
 import io.github.omerfarukdemir.ktorate.storages.FixedWindowStorage
-import io.ktor.server.application.*
-import io.ktor.server.engine.*
-import io.ktor.server.netty.*
-import io.ktor.server.response.*
-import io.ktor.server.routing.*
+import io.ktor.server.application.Application
+import io.ktor.server.application.call
+import io.ktor.server.application.install
+import io.ktor.server.engine.embeddedServer
+import io.ktor.server.netty.Netty
+import io.ktor.server.response.respondText
+import io.ktor.server.routing.get
+import io.ktor.server.routing.routing
 import org.ktorm.database.Database
-import org.ktorm.dsl.*
 import org.ktorm.schema.Table
 import org.ktorm.schema.int
 import org.ktorm.schema.varchar
 import org.ktorm.support.postgresql.insertOrUpdate
 import kotlin.time.Duration.Companion.seconds
+import org.ktorm.dsl.QueryRowSet
+import org.ktorm.dsl.delete
+import org.ktorm.dsl.eq
+import org.ktorm.dsl.from
+import org.ktorm.dsl.inList
+import org.ktorm.dsl.limit
+import org.ktorm.dsl.map
+import org.ktorm.dsl.select
+import org.ktorm.dsl.where
 
 fun main() {
     embeddedServer(Netty, module = Application::ktorm).start(wait = true)

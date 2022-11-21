@@ -13,9 +13,4 @@ data class SlidingWindowModel(
     override fun requestCount(): Int {
         return requestCount
     }
-
-    // TODO: remove
-    fun incrementCount(): SlidingWindowModel {
-        return copy(requestCount = requestCount + 1)
-    }
 }
