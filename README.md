@@ -100,6 +100,5 @@ fun Application.inMemory() {
 - Distributed optimistic lock for external storages
 - Mutex improvement
 - Configurable response
-- Publish (github packages)
 - More detailed tests
 - Token Bucket and Leaky Bucket strategies
