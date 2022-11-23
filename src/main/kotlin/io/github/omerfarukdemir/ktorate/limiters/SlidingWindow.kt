@@ -10,10 +10,10 @@ import kotlin.time.Duration
 
 class SlidingWindow(
     duration: Duration,
-    private val limit: Int,
+    limit: Int,
     synchronizedReadWrite: Boolean,
     private val storage: SlidingWindowStorage = InMemorySlidingWindowStorage()
-) : RateLimiter(duration, synchronizedReadWrite, storage as RateLimitStorage<RateLimitModel>) {
+) : RateLimiter(duration, limit, synchronizedReadWrite, storage as RateLimitStorage<RateLimitModel>) {
 
     override suspend fun apply(id: String, nowInSeconds: Int): Result {
         val diffFromWindowStart by lazy { nowInSeconds % durationInSeconds }

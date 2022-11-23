@@ -28,7 +28,7 @@ fun Application.inMemory() {
 }
 ```
 
-- Customized Options
+- Options
 
 ```kotlin
 fun main() {
@@ -42,46 +42,28 @@ fun Application.inMemory() {
     }
 
     install(Ktorate) {
-        // strategy window
-        duration = 1.hours
-
-        // max request in duration by defined strategy
-        limit = 1000
-
         // to remove expired records in data store
         deleteExpiredRecordsPeriod = 5.minutes
 
         // default is client's IP
         identityFunction = ::getUserId
 
-        // blocking ops between read and write ops (only for same identity)
-        synchronizedReadWrite = true
+        rateLimiter = FixedWindow(
+            // strategy window
+            duration = 5.seconds,
+
+            // max request in duration by defined strategy
+            limit = 5,
+
+            // blocking ops between read and write ops (only for same identity)
+            synchronizedReadWrite = true
+        )
 
         // count starting path with "/v1/api/" urls
         includedPaths = listOf(Regex("^/api/v1/.*$"))
 
         // do not count .html urls
         excludedPaths = listOf(Regex("^.*html$"))
-    }
-
-    routing { get("/") { call.respondText("Evet") } }
-}
-```
-
-- Strategy Selection
-
-```kotlin
-fun main() {
-    embeddedServer(Netty, module = Application::inMemory).start(wait = true)
-}
-
-fun Application.inMemory() {
-    install(Ktorate) {
-        duration = 1.hours
-        limit = 100
-        deleteExpiredRecordsPeriod = 5.minutes
-        synchronizedReadWrite = false
-        rateLimiter = SlidingWindow(duration, limit, synchronizedReadWrite) // can be FixedWindow, SlidingWindow, SlidingLog
     }
 
     routing { get("/") { call.respondText("Evet") } }
@@ -96,7 +78,6 @@ fun Application.inMemory() {
 
 ### TODO's
 
-- Fix confusion between Configuration and RateLimiters
 - Distributed optimistic lock for external storages
 - Mutex improvement
 - Configurable response

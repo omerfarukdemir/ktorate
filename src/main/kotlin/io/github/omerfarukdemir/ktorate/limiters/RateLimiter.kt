@@ -11,7 +11,8 @@ import java.util.concurrent.ConcurrentMap
 import kotlin.time.Duration
 
 abstract class RateLimiter(
-    duration: Duration,
+    val duration: Duration,
+    val limit: Int,
     private val synchronizedReadWrite: Boolean,
     private val storage: RateLimitStorage<RateLimitModel>
 ) {

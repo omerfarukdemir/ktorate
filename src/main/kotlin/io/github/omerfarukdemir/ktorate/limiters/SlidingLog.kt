@@ -10,10 +10,10 @@ import kotlin.time.Duration
 
 class SlidingLog(
     duration: Duration,
-    private val limit: Int,
+    limit: Int,
     synchronizedReadWrite: Boolean,
     private val storage: SlidingLogStorage = InMemorySlidingLogStorage()
-) : RateLimiter(duration, synchronizedReadWrite, storage as RateLimitStorage<RateLimitModel>) {
+) : RateLimiter(duration, limit, synchronizedReadWrite, storage as RateLimitStorage<RateLimitModel>) {
 
     override suspend fun apply(id: String, nowInSeconds: Int): Result {
         val model = (storage.get(id) ?: SlidingLogModel(id, listOf()))

@@ -1,5 +1,6 @@
 package io.github.omerfarukdemir.ktorate
 
+import io.github.omerfarukdemir.ktorate.limiters.FixedWindow
 import io.github.omerfarukdemir.ktorate.limiters.RateLimiter
 import io.github.omerfarukdemir.ktorate.limiters.SlidingWindow
 import io.github.omerfarukdemir.ktorate.utils.Now
@@ -21,16 +22,13 @@ import kotlin.time.Duration
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
 
-class KtorateConfiguration(
-    var duration: Duration = 1.hours,
-    var limit: Int = 1000,
-    var deleteExpiredRecordsPeriod: Duration = 10.minutes,
-    var identityFunction: (request: ApplicationRequest) -> String = { it.origin.remoteHost },
-    var synchronizedReadWrite: Boolean = true,
-    var rateLimiter: RateLimiter = SlidingWindow(duration, limit, synchronizedReadWrite),
-    var includedPaths: Collection<Regex>? = null,
+class KtorateConfiguration {
+    var deleteExpiredRecordsPeriod: Duration = 10.minutes
+    var identityFunction: (request: ApplicationRequest) -> String = { it.origin.remoteHost }
+    var rateLimiter: RateLimiter = FixedWindow(1.hours, 1000, true)
+    var includedPaths: Collection<Regex>? = null
     var excludedPaths: Collection<Regex>? = null
-)
+}
 
 data class Result(
     val startInSeconds: Int,
@@ -85,14 +83,14 @@ val Ktorate by lazy {
             if (shouldWork) {
                 val identity = pluginConfig.identityFunction(call.request)
                 val result = pluginConfig.rateLimiter.rate(identity, Now.seconds())
-                val remainingRequestCount = pluginConfig.limit - result.count
+                val remainingRequestCount = pluginConfig.rateLimiter.limit - result.count
 
                 call.response.header("X-RateLimit-Strategy", pluginConfig.rateLimiter.javaClass.simpleName)
-                call.response.header("X-RateLimit-Limit", pluginConfig.limit)
+                call.response.header("X-RateLimit-Limit", pluginConfig.rateLimiter.limit)
                 call.response.header("X-RateLimit-Remaining", remainingRequestCount)
 
                 if (pluginConfig.rateLimiter !is SlidingWindow) {
-                    val reset = result.startInSeconds + pluginConfig.duration.inWholeSeconds
+                    val reset = result.startInSeconds + pluginConfig.rateLimiter.duration.inWholeSeconds
 
                     call.response.header("X-RateLimit-Reset", reset)
                 }
