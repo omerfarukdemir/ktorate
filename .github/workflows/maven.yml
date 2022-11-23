@@ -10,8 +10,8 @@ name: maven
 on:
   push:
     branches: [ "master", "develop" ]
-  pull_request:
-    branches: [ "master", "develop" ]
+#  pull_request:
+#    branches: [ "master", "develop" ]
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -27,7 +27,7 @@ jobs:
         uses: actions/setup-java@v3
         with:
           java-version: ${{ matrix.jdk-version }}
-          distribution: 'corretto'
+          distribution: "corretto"
           server-id: github # Value of the distributionManagement/repository/id field of the pom.xml
           settings-path: ${{ github.workspace }} # location for the settings.xml file
       - name: Compile
@@ -35,12 +35,29 @@ jobs:
       - name: Test
         run: mvn test
       - name: Publish
-        shell: bash
         env:
           GITHUB_TOKEN: ${{ github.token }}
+        shell: bash
         run: |
-          if [[ ${{ matrix.jdk-version }} == 8 ]]
-          then
+          PROJECT_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+          BRANCH=$(echo ${{ github.head_ref || github.ref_name }})
+          JDK_VERSION=$(echo ${{ matrix.jdk-version }})
+
+          PUBLISH=false
+
+          if [[ "$JDK_VERSION" == "8" ]]; then
+            if [[ "$PROJECT_VERSION" == *"SNAPSHOT" ]]; then
+              if [[ "$BRANCH" == "develop" ]]; then
+                PUBLISH=true
+              fi
+            else
+              if [[ "$BRANCH" == "master" ]]; then
+                PUBLISH=true
+              fi
+            fi
+          fi
+
+          if [[ $PUBLISH == true ]]; then
             mvn package
             mvn deploy -s $GITHUB_WORKSPACE/settings.xml
           fi
