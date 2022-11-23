@@ -72,9 +72,8 @@ fun Application.inMemory() {
 
 ### Custom Storage Examples
 
-- Redis ([jedis](https://github.com/omerfarukdemir/ktorate/tree/develop/src/test/kotlin/io/github/omerfarukdemir/ktorate/examples/redis/JedisApplication.kt))
-
-- PostgreSQL ([exposed](https://github.com/omerfarukdemir/ktorate/tree/develop/src/test/kotlin/io/github/omerfarukdemir/ktorate/examples/postgresql/ExposedApplication.kt), [ktorm](https://github.com/omerfarukdemir/ktorate/tree/develop/src/test/kotlin/io/github/omerfarukdemir/ktorate/examples/postgresql/KtormApplication.kt))
+- Redis ([jedis](https://github.com/omerfarukdemir/ktorate-examples/blob/main/src/main/kotlin/io/github/omerfarukdemir/ktorate_examples/RedisJedisExample.kt))
+- PostgreSQL ([ktorm](https://github.com/omerfarukdemir/ktorate-examples/blob/main/src/main/kotlin/io/github/omerfarukdemir/ktorate_examples/PostgreSQLKtormExample.kt), [exposed](https://github.com/omerfarukdemir/ktorate-examples/blob/main/src/main/kotlin/io/github/omerfarukdemir/ktorate_examples/PostgreSQLExposedExample.kt))
 
 ### TODO's
 
